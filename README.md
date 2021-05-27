@@ -11,7 +11,7 @@ This plugin enables users to:
 
 - [x] Basic Functionality
 - [ ] Transition animation
-- [ ] Option to enable disable sidebar animation
+- [ ] Option to enable/disable sidebar animation
 
 ### How to Install (Manual):
 
