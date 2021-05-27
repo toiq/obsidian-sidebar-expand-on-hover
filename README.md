@@ -21,7 +21,7 @@ This plugin enables users to:
 
 - If Obsidian is running then close it.
 - Locate your Obsidian vault. (It's where you keep your notes)
-- Run the following code in terminal:
+- Run the following commands in terminal:
   ```bash
   $ cd <vault>/.obsidian/plugins/
   $ git clone https://github.com/toiq/obsidian-sidebar-expand-on-hover
