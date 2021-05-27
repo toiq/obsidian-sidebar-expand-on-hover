@@ -5,10 +5,17 @@ This plugin enables users to:
 - Expand sidebar when mouse hovers over to the left side ribbon
 - Collapse sidebar otherwise
 
-**Warning:** This plugin is currently in alpha and may contain bugs that can result in unexpected behavior.
+**WARNING:** This plugin is currently in alpha and may contain bugs that can result in unexpected behavior.
+
+### TODO:
+
+- [x] Basic Functionality
+- [ ] Transition animation
+- [ ] Option to enable disable sidebar animation
 
 ### How to Install (Manual):
 
+- Locate your Obsidian vault. (It's where you keep your notes)
 - Run the following code in terminal:
   ```bash
   $ cd <vault>/.obsidian/plugins/
@@ -19,4 +26,4 @@ This plugin enables users to:
 ### How to Uninstall (Manual):
 
 - go to <kbd>settings > Community Plugins > Installed Plugins </kbd> and click the X besides this plugin's name.
-- Restart Obsidian
+- Restart Obsidian.
