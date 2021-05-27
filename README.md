@@ -28,7 +28,7 @@ This plugin enables users to:
   ```
 - Now launch Obsidian and go to `settings > Community Plugins > Installed Plugins` and enable this plugin. (Make sure you disabled 'Safe Mode')
 
-### How to Uninstall (Manual):
+### How to Uninstall:
 
 - go to `settings > Community Plugins > Installed Plugins` and click the X besides this plugin's name.
 - Restart Obsidian.
