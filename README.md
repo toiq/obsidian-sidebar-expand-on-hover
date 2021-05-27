@@ -2,8 +2,12 @@
 
 This plugin enables users to:
 
-- Expand sidebar when mouse hovers over to the left side ribbon
-- Collapse sidebar otherwise
+- Expand sidebar when mouse hovers over to the left side ribbon.
+- Collapse sidebar otherwise.
+
+### Plugin in action!
+
+![Plugin in Action: Auto expand of sidebar when hovering on ribbon](./plugin-in-action.gif)
 
 **WARNING:** This plugin is currently in alpha and may contain bugs that can result in unexpected behavior.
 
@@ -15,15 +19,16 @@ This plugin enables users to:
 
 ### How to Install (Manual):
 
+- If Obsidian is running then close it.
 - Locate your Obsidian vault. (It's where you keep your notes)
 - Run the following code in terminal:
   ```bash
   $ cd <vault>/.obsidian/plugins/
   $ git clone https://github.com/toiq/obsidian-mouse-hover-expand
   ```
-- Now launch Obsidian and go to <kbd>settings > Community Plugins > Installed Plugins </kbd> and enable this plugin. (Make sure you disabled 'Safe Mode')
+- Now launch Obsidian and go to `settings > Community Plugins > Installed Plugins` and enable this plugin. (Make sure you disabled 'Safe Mode')
 
 ### How to Uninstall (Manual):
 
-- go to <kbd>settings > Community Plugins > Installed Plugins </kbd> and click the X besides this plugin's name.
+- go to `settings > Community Plugins > Installed Plugins` and click the X besides this plugin's name.
 - Restart Obsidian.
