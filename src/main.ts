@@ -1,112 +1,165 @@
-import { App, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import {
+  App,
+  Modal,
+  Notice,
+  Plugin,
+  PluginSettingTab,
+  Setting,
+} from 'obsidian';
 
 interface MyPluginSettings {
-	mySetting: string;
+  mySetting: string;
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
+  mySetting: 'default',
+};
 
 export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+  settings: MyPluginSettings;
+  ribbon: any = null;
+  sidebar: any = null;
+  editor: any = null;
+  mouseOver: Function;
+  mouseOut: Function;
 
-	async onload() {
-		console.log('loading plugin');
+  async onload() {
+    console.log('loading mouse hover expand plugin');
 
-		await this.loadSettings();
+    await this.loadSettings();
 
-		this.addRibbonIcon('dice', 'Sample Plugin', () => {
-			new Notice('This is a notice!');
-		});
+    // this.addRibbonIcon('dice', 'Sample Plugin', () => {
+    // 	new Notice('This is a notice!');
+    // });
 
-		this.addStatusBarItem().setText('Status Bar Text');
+    this.addStatusBarItem().setText('Status Bar Text');
 
-		this.addCommand({
-			id: 'open-sample-modal',
-			name: 'Open Sample Modal',
-			// callback: () => {
-			// 	console.log('Simple Callback');
-			// },
-			checkCallback: (checking: boolean) => {
-				let leaf = this.app.workspace.activeLeaf;
-				if (leaf) {
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
-					return true;
-				}
-				return false;
-			}
-		});
+    // this.addCommand({
+    // 	id: 'open-sample-modal',
+    // 	name: 'Open Sample Modal',
+    // 	// callback: () => {
+    // 	// 	console.log('Simple Callback');
+    // 	// },
+    // 	checkCallback: (checking: boolean) => {
+    // 		let leaf = this.app.workspace.activeLeaf;
+    // 		if (leaf) {
+    // 			if (!checking) {
+    // 				new SampleModal(this.app).open();
+    // 			}
+    // 			return true;
+    // 		}
+    // 		return false;
+    // 	}
+    // });
 
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+    // this.addSettingTab(new SampleSettingTab(this.app, this));
 
-		this.registerCodeMirror((cm: CodeMirror.Editor) => {
-			console.log('codemirror', cm);
-		});
+    // this.registerCodeMirror((cm: CodeMirror.Editor) => {
+    // 	console.log('codemirror', cm);
+    // });
 
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
-		});
+    // this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
+    // 	console.log('click', evt);
+    // });
 
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
-	}
+    this.registerDomEvent(document, 'mousemove', (evt: MouseEvent) => {
+      this.saveData(DEFAULT_SETTINGS);
+      this.ribbon = Array.from(
+        document.getElementsByClassName(
+          'workspace-ribbon'
+        ) as HTMLCollectionOf<HTMLElement>
+      );
 
-	onunload() {
-		console.log('unloading plugin');
-	}
+      this.sidebar = Array.from(
+        document.getElementsByClassName(
+          'mod-left-split'
+        ) as HTMLCollectionOf<HTMLElement>
+      );
 
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	}
+      this.mouseOver = () => {
+        this.sidebar[0].style.width = '266px';
+      };
+      this.mouseOut = () => {
+        this.sidebar[0].style.width = '0px';
+      };
 
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
+      this.editor = document.getElementsByClassName('markdown-source-view');
+
+      this.ribbon[0].addEventListener('mouseover', this.mouseOver);
+
+      document.body.addEventListener('mouseleave', this.mouseOut.bind(this));
+      this.editor[0].addEventListener('mouseover', this.mouseOut);
+      // console.log('click', evt);
+      // this.loadData().then((data) => {
+      //   console.log(data);
+      // });
+    });
+
+    this.registerInterval(
+      window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000)
+    );
+  }
+
+  onunload() {
+    console.log('unloading mouse hover expand plugin');
+    // Reset the html element selection variables
+    this.ribbon = null;
+    this.sidebar = null;
+    this.editor = null;
+    this.mouseOut = null;
+    this.mouseOver = null;
+  }
+
+  async loadSettings() {
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+  }
+
+  async saveSettings() {
+    await this.saveData(this.settings);
+  }
 }
 
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
+// class SampleModal extends Modal {
+// 	constructor(app: App) {
+// 		super(app);
+// 	}
 
-	onOpen() {
-		let {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
+// 	onOpen() {
+// 		let {contentEl} = this;
+// 		contentEl.setText('Woah!');
+// 	}
 
-	onClose() {
-		let {contentEl} = this;
-		contentEl.empty();
-	}
-}
+// 	onClose() {
+// 		let {contentEl} = this;
+// 		contentEl.empty();
+// 	}
+// }
 
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+// class SampleSettingTab extends PluginSettingTab {
+// 	plugin: MyPlugin;
 
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
+// 	constructor(app: App, plugin: MyPlugin) {
+// 		super(app, plugin);
+// 		this.plugin = plugin;
+// 	}
 
-	display(): void {
-		let {containerEl} = this;
+// 	display(): void {
+// 		let {containerEl} = this;
 
-		containerEl.empty();
+// 		containerEl.empty();
 
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
+// 		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
 
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue('')
-				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
-	}
-}
+// 		new Setting(containerEl)
+// 			.setName('Setting #1')
+// 			.setDesc('It\'s a secret')
+// 			.addText(text => text
+// 				.setPlaceholder('Enter your secret')
+// 				.setValue('')
+// 				.onChange(async (value) => {
+// 					console.log('Secret: ' + value);
+// 					this.plugin.settings.mySetting = value;
+// 					await this.plugin.saveSettings();
+// 				}));
+// 	}
+// }
