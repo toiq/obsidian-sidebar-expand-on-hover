@@ -19,8 +19,9 @@ export default class MyPlugin extends Plugin {
   settings: MyPluginSettings;
   ribbon: any = null;
   sidebar: any = null;
-  editor: any = null;
-  preview: any = null;
+  // editor: any = null;
+  // preview: any = null;
+  workspace: any = null;
   expandSidebar: Function;
   collapseSidebar: Function;
 
@@ -64,7 +65,6 @@ export default class MyPlugin extends Plugin {
     // });
 
     this.registerDomEvent(document, 'mousemove', (evt: MouseEvent) => {
-      this.saveData(DEFAULT_SETTINGS);
       this.ribbon = Array.from(
         document.getElementsByClassName(
           'workspace-ribbon'
@@ -77,6 +77,12 @@ export default class MyPlugin extends Plugin {
         ) as HTMLCollectionOf<HTMLElement>
       );
 
+      this.workspace = document.getElementsByClassName('mod-root');
+
+      // this.editor = document.getElementsByClassName('markdown-source-view');
+      // this.preview = document.getElementsByClassName('markdown-preview-view');
+      this.ribbon[0].addEventListener('mouseover', this.expandSidebar);
+
       this.expandSidebar = () => {
         this.sidebar[0].style.width = '266px';
         this.sidebar[0].style.removeProperty('display');
@@ -84,17 +90,16 @@ export default class MyPlugin extends Plugin {
       this.collapseSidebar = () => {
         this.sidebar[0].style.width = '0px';
       };
-
-      this.editor = document.getElementsByClassName('markdown-source-view');
-      this.preview = document.getElementsByClassName('markdown-preview-view');
-      this.ribbon[0].addEventListener('mouseover', this.expandSidebar);
-
-      document.body.addEventListener(
-        'mouseleave',
-        this.collapseSidebar.bind(this)
-      );
-      this.editor[0].addEventListener('mouseover', this.collapseSidebar);
-      this.preview[0].addEventListener('mouseover', this.collapseSidebar);
+      try {
+        document.body.addEventListener(
+          'mouseleave',
+          this.collapseSidebar.bind(this)
+        );
+      } finally {
+        console.log('Failed to get mouseleave event for document object');
+      }
+      this.workspace[1].addEventListener('mouseover', this.collapseSidebar);
+      //this.preview[0].addEventListener('mouseover', this.collapseSidebar);
       // console.log('click', evt);
       // this.loadData().then((data) => {
       //   console.log(data);
@@ -111,7 +116,7 @@ export default class MyPlugin extends Plugin {
     // Reset the html element selection variables
     this.ribbon = null;
     this.sidebar = null;
-    this.editor = null;
+    this.workspace = null;
     this.collapseSidebar = null;
     this.expandSidebar = null;
   }
