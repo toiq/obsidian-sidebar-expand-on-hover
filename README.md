@@ -21,7 +21,7 @@ This plugin enables users to:
   $ cd <vault>/.obsidian/plugins/
   $ git clone https://github.com/toiq/obsidian-mouse-hover-expand
   ```
-- Now launch Obsidian and go to <kbd>settings > Community Plugins > Installed Plugins </kbd> and enable this plugin.
+- Now launch Obsidian and go to <kbd>settings > Community Plugins > Installed Plugins </kbd> and enable this plugin. (Make sure you disabled 'Safe Mode')
 
 ### How to Uninstall (Manual):
 
