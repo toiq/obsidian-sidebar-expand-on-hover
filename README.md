@@ -1,4 +1,4 @@
-## Obsidian Mouse Hover Expand Plugin
+## Obsidian Sidebar Expand on Hover Plugin
 
 This plugin enables users to:
 
@@ -24,7 +24,7 @@ This plugin enables users to:
 - Run the following code in terminal:
   ```bash
   $ cd <vault>/.obsidian/plugins/
-  $ git clone https://github.com/toiq/obsidian-mouse-hover-expand
+  $ git clone https://github.com/toiq/obsidian-sidebar-expand-on-hover
   ```
 - Now launch Obsidian and go to `settings > Community Plugins > Installed Plugins` and enable this plugin. (Make sure you disabled 'Safe Mode')
 
