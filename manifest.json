@@ -1,10 +1,9 @@
 {
-	"id": "obsidian-sample-plugin",
-	"name": "Sample Plugin",
-	"version": "1.0.1",
-	"minAppVersion": "0.9.12",
-	"description": "This is a sample plugin for Obsidian. This plugin demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md/about",
-	"isDesktopOnly": false
+  "id": "obsidian-mouse-hover-expand",
+  "name": "Mouse Hover Expand",
+  "version": "1.0.1",
+  "minAppVersion": "0.12.3",
+  "description": "This Obsidian plugin expands or collapses the sidebar based on mouse hovering on the left ribbon.",
+  "authorUrl": "https://github.com/toiq",
+  "isDesktopOnly": false
 }
