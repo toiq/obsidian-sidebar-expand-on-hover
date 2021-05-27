@@ -20,8 +20,9 @@ export default class MyPlugin extends Plugin {
   ribbon: any = null;
   sidebar: any = null;
   editor: any = null;
-  mouseOver: Function;
-  mouseOut: Function;
+  preview: any = null;
+  expandSidebar: Function;
+  collapseSidebar: Function;
 
   async onload() {
     console.log('loading mouse hover expand plugin');
@@ -76,19 +77,24 @@ export default class MyPlugin extends Plugin {
         ) as HTMLCollectionOf<HTMLElement>
       );
 
-      this.mouseOver = () => {
+      this.expandSidebar = () => {
         this.sidebar[0].style.width = '266px';
+        this.sidebar[0].style.removeProperty('display');
       };
-      this.mouseOut = () => {
+      this.collapseSidebar = () => {
         this.sidebar[0].style.width = '0px';
       };
 
       this.editor = document.getElementsByClassName('markdown-source-view');
+      this.preview = document.getElementsByClassName('markdown-preview-view');
+      this.ribbon[0].addEventListener('mouseover', this.expandSidebar);
 
-      this.ribbon[0].addEventListener('mouseover', this.mouseOver);
-
-      document.body.addEventListener('mouseleave', this.mouseOut.bind(this));
-      this.editor[0].addEventListener('mouseover', this.mouseOut);
+      document.body.addEventListener(
+        'mouseleave',
+        this.collapseSidebar.bind(this)
+      );
+      this.editor[0].addEventListener('mouseover', this.collapseSidebar);
+      this.preview[0].addEventListener('mouseover', this.collapseSidebar);
       // console.log('click', evt);
       // this.loadData().then((data) => {
       //   console.log(data);
@@ -106,8 +112,8 @@ export default class MyPlugin extends Plugin {
     this.ribbon = null;
     this.sidebar = null;
     this.editor = null;
-    this.mouseOut = null;
-    this.mouseOver = null;
+    this.collapseSidebar = null;
+    this.expandSidebar = null;
   }
 
   async loadSettings() {
