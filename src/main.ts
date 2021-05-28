@@ -49,7 +49,7 @@ export default class MyPlugin extends Plugin {
     });
 
     this.registerDomEvent(this.sidebar[0] as HTMLElement, 'mouseover', () => {
-      this.sidebar[0].style.width = '0px';
+      this.sidebar[0].style.width = '266px';
     });
   };
 
