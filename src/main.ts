@@ -1,56 +1,59 @@
-import { Plugin } from 'obsidian';
+import { Plugin, WorkspaceRibbon } from 'obsidian';
 
 export default class MyPlugin extends Plugin {
   ribbon: any = null;
   sidebar: any = null;
-  workspace: any = null;
-  expandSidebar: Function;
-  collapseSidebar: Function;
 
   async onload() {
     console.log('loading mouse hover expand plugin');
-
-    this.registerDomEvent(document, 'mousemove', (evt: MouseEvent) => {
-      this.ribbon = Array.from(
-        document.getElementsByClassName(
-          'workspace-ribbon'
-        ) as HTMLCollectionOf<HTMLElement>
-      );
-
-      this.sidebar = Array.from(
-        document.getElementsByClassName(
-          'mod-left-split'
-        ) as HTMLCollectionOf<HTMLElement>
-      );
-
-      this.workspace = document.getElementsByClassName('mod-root');
-
-      this.ribbon[0].addEventListener('mouseover', this.expandSidebar);
-
-      this.expandSidebar = () => {
-        this.sidebar[0].style.width = '266px';
-        this.sidebar[0].style.removeProperty('display');
-      };
-      this.collapseSidebar = () => {
-        this.sidebar[0].style.width = '0px';
-      };
-
-      document.body.addEventListener(
-        'mouseleave',
-        this.collapseSidebar.bind(this)
-      );
-
-      this.workspace[1].addEventListener('mouseover', this.collapseSidebar);
-    });
+    this.registerEvent(
+      this.app.workspace.on('layout-ready', () => {
+        this.initialize();
+        console.log('Got from layout-ready event');
+        this.setEvents();
+      })
+    );
+    try {
+      this.initialize();
+      this.setEvents();
+    } finally {
+      window.setTimeout(() => {
+        this.initialize();
+        this.setEvents();
+      }, 2000);
+    }
   }
+
+  initialize: Function = () => {
+    this.ribbon = Array.from(
+      document.getElementsByClassName(
+        'workspace-ribbon'
+      ) as HTMLCollectionOf<HTMLElement>
+    );
+
+    this.sidebar = Array.from(
+      document.getElementsByClassName(
+        'mod-left-split'
+      ) as HTMLCollectionOf<HTMLElement>
+    );
+  };
+
+  setEvents: Function = () => {
+    this.registerDomEvent(document, 'mouseout', () => {
+      this.sidebar[0].style.width = '0px';
+    });
+
+    this.registerDomEvent(this.ribbon[0] as HTMLElement, 'mouseover', () => {
+      this.sidebar[0].style.width = '266px';
+      this.sidebar[0].style.removeProperty('display');
+    });
+
+    this.registerDomEvent(this.sidebar[0] as HTMLElement, 'mouseover', () => {
+      this.sidebar[0].style.width = '0px';
+    });
+  };
 
   onunload() {
     console.log('unloading mouse hover expand plugin');
-    // Reset the html element selection variables
-    this.ribbon = null;
-    this.sidebar = null;
-    this.workspace = null;
-    this.collapseSidebar = null;
-    this.expandSidebar = null;
   }
 }
