@@ -2,7 +2,7 @@
 
 This plugin enables users to:
 
-- Expand sidebar when mouse hovers over to the left side ribbon.
+- Expand sidebar when mouse hovers over to the side ribbons.
 - Collapse sidebar otherwise.
 
 ### Plugin in action!
@@ -12,8 +12,9 @@ This plugin enables users to:
 ### TODO:
 
 - [x] Basic Functionality
-- [ ] Transition animation
-- [ ] Option to enable/disable sidebar animation
+- [x] Transition animation
+- [x] Option to enable/disable sidebar animation
+- [x] Option to set width of sidebars
 
 ### How to Install (Manual):
 
