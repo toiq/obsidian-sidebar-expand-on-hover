@@ -2,15 +2,15 @@ import { Plugin } from 'obsidian';
 
 export default class MyPlugin extends Plugin {
   ribbon: HTMLElement;
+
   sidebar: HTMLElement;
 
   async onload() {
-    console.log('loading mouse hover expand plugin');
-
     // Initialize and set events when layout is fully ready
     this.app.workspace.onLayoutReady(() => {
       this.initialize();
       this.setEvents();
+      this.addStyle();
     });
   }
 
@@ -48,6 +48,7 @@ export default class MyPlugin extends Plugin {
   expandSidebar = () => {
     this.sidebar.style.width = '252px';
     this.sidebar.style.removeProperty('display');
+    // document.body.addClass('.sidebar');
   };
 
   // Changes sidebar style width to collapse it
@@ -55,7 +56,16 @@ export default class MyPlugin extends Plugin {
     this.sidebar.style.width = '0px';
   };
 
-  onunload() {
-    console.log('unloading mouse hover expand plugin');
-  }
+  // CSS for adding transition animation
+  addStyle = () => {
+    this.sidebar.classList.add('sidebar');
+    this.sidebar.classList.toggle('.sidebar.active');
+  };
+
+  // Removes transition animation
+  removeStyle = () => {
+    this.sidebar.classList.remove('sidebar');
+  };
+
+  onunload() {}
 }

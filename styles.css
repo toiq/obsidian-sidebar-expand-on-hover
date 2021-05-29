@@ -1,0 +1,8 @@
+.sidebar {
+  width: 0px;
+  transition: all 100ms linear;
+}
+
+.sidebar.active {
+  width: 252px !important;
+}
