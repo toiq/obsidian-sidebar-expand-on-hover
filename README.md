@@ -9,8 +9,6 @@ This plugin enables users to:
 
 ![Plugin in Action: Auto expand of sidebar when hovering on ribbon](./plugin-in-action.gif)
 
-**WARNING:** This plugin is currently in alpha and may contain bugs that can result in unexpected behavior.
-
 ### TODO:
 
 - [x] Basic Functionality
