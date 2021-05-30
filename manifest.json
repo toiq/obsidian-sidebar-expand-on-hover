@@ -1,9 +1,9 @@
 {
   "id": "obsidian-sidebar-expand-on-hover",
   "name": "Sidebar Expand on Hover",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "minAppVersion": "0.12.3",
-  "description": "This Obsidian plugin expands or collapses the sidebar based on mouse hovering on the left ribbon.",
+  "description": "This Obsidian plugin expands or collapses the sidebar based on mouse hovering on the ribbons.",
   "authorUrl": "https://github.com/toiq",
   "isDesktopOnly": false
 }
