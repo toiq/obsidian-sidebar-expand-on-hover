@@ -7,14 +7,14 @@ This plugin enables users to:
 
 ### Plugin in action!
 
-![Plugin in Action: Auto expand of sidebar when hovering on ribbon](./plugin-in-action.gif)
+![Plugin in Action: Auto expand of sidebar when hovering on ribbon](./demo.gif)
 
 ### TODO:
 
 - [x] Basic Functionality
 - [x] Transition animation
-- [x] Option to enable/disable sidebar animation
-- [x] Option to set width of sidebars
+- [x] Option to enable/disable sidebar animation individually for both sides.
+- [x] Option to set width of individual sidebars
 
 ### How to Install (Manual):
 
