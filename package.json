@@ -1,5 +1,5 @@
 {
-  "name": "Sidebar Expand on Hover Plugin",
+  "name": "sidebar-expand-on-hover-plugin",
   "version": "0.3.0",
   "description": "This Obsidian plugin expands or collapses the sidebar based on mouse hovering on the ribbons.",
   "main": "main.js",
