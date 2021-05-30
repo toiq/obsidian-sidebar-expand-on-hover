@@ -1,6 +1,8 @@
 import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
 interface MyPluginSettings {
+  leftSideEnabled: boolean;
+  rightSideEnabled: boolean;
   leftSidebarAnimation: boolean;
   rightSidebarAnimation: boolean;
   leftSidebarWidth: number;
@@ -8,6 +10,8 @@ interface MyPluginSettings {
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
+  leftSideEnabled: true,
+  rightSideEnabled: true,
   leftSidebarAnimation: false,
   rightSidebarAnimation: false,
   leftSidebarWidth: 252,
@@ -74,11 +78,11 @@ export default class MyPlugin extends Plugin {
   // Changes sidebar style width and display to expand it
   expandSidebar = (sidebar: HTMLElement) => {
     try {
-      if (sidebar == this.leftSidebar) {
+      if (sidebar == this.leftSidebar && this.settings.leftSideEnabled) {
         sidebar.style.width = String(this.settings.leftSidebarWidth) + 'px';
         sidebar.style.removeProperty('display');
       }
-      if (sidebar == this.rightSidebar) {
+      if (sidebar == this.rightSidebar && this.settings.rightSideEnabled) {
         sidebar.style.width = String(this.settings.rightSidebarWidth) + 'px';
         sidebar.style.removeProperty('display');
       }
@@ -89,17 +93,21 @@ export default class MyPlugin extends Plugin {
 
   // Changes sidebar style width to collapse it
   collapseSidebar = () => {
-    this.leftSidebar.style.width = '0px';
-    this.rightSidebar.style.width = '0px';
+    if (this.settings.leftSideEnabled) {
+      this.leftSidebar.style.width = '0px';
+    }
+    if (this.settings.rightSideEnabled) {
+      this.rightSidebar.style.width = '0px';
+    }
   };
 
   // CSS for adding transition animation
   addStyle = () => {
-    if (this.settings.leftSidebarAnimation) {
+    if (this.settings.leftSidebarAnimation && this.settings.leftSideEnabled) {
       this.leftSidebar.classList.add('sidebar');
       this.leftSidebar.classList.toggle('.sidebar.active');
     }
-    if (this.settings.rightSidebarAnimation) {
+    if (this.settings.rightSidebarAnimation && this.settings.rightSideEnabled) {
       this.rightSidebar.classList.add('sidebar');
       this.rightSidebar.classList.toggle('.sidebar.active');
     }
@@ -107,10 +115,13 @@ export default class MyPlugin extends Plugin {
 
   // Removes transition animation
   removeStyle = () => {
-    if (!this.settings.leftSidebarAnimation) {
+    if (!this.settings.leftSidebarAnimation && this.settings.leftSideEnabled) {
       this.leftSidebar.classList.remove('sidebar');
     }
-    if (!this.settings.rightSidebarAnimation) {
+    if (
+      !this.settings.rightSidebarAnimation &&
+      this.settings.rightSideEnabled
+    ) {
       this.rightSidebar.classList.remove('sidebar');
     }
   };
@@ -144,6 +155,49 @@ class MyPluginSettingTab extends PluginSettingTab {
 
     this.plugin.loadData();
     containerEl.createEl('h2', { text: 'Sidebar Expand On Hover' });
+    containerEl.createEl('h4', { text: 'Enable Individual Sidebar' });
+    const leftSideEnabled = new Setting(containerEl);
+    leftSideEnabled.setName('Left Sidebar');
+    leftSideEnabled.setDesc(
+      'Toggle to enable/disable left sidebar expand on hover'
+    );
+    leftSideEnabled.addToggle((t) => {
+      t.setValue(this.plugin.settings.leftSideEnabled);
+      t.onChange(async (v) => {
+        if (v) {
+          this.plugin.settings.leftSideEnabled = true;
+          this.plugin.saveSettings();
+          this.plugin.addStyle();
+        } else {
+          this.plugin.settings.leftSideEnabled = false;
+          this.plugin.saveSettings();
+          this.plugin.removeStyle();
+        }
+        this.plugin.setEvents();
+      });
+    });
+
+    const rightSideEnabled = new Setting(containerEl);
+    rightSideEnabled.setName('Right Sidebar');
+    rightSideEnabled.setDesc(
+      'Toggle to enable/disable right sidebar expand on hover'
+    );
+    rightSideEnabled.addToggle((t) => {
+      t.setValue(this.plugin.settings.rightSideEnabled);
+      t.onChange(async (v) => {
+        if (v) {
+          this.plugin.settings.rightSideEnabled = true;
+          this.plugin.saveSettings();
+          this.plugin.addStyle();
+        } else {
+          this.plugin.settings.rightSideEnabled = false;
+          this.plugin.saveSettings();
+          this.plugin.removeStyle();
+        }
+        this.plugin.setEvents();
+      });
+    });
+
     containerEl.createEl('h4', { text: 'Sidebar Animation' });
     const leftSidebarAnimation = new Setting(containerEl);
     leftSidebarAnimation.setName('Left Sidebar');
