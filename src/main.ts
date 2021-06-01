@@ -1,4 +1,4 @@
-import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Plugin, PluginSettingTab, Setting, Workspace } from 'obsidian';
 
 interface MyPluginSettings {
   leftSideEnabled: boolean;
@@ -31,7 +31,6 @@ export default class MyPlugin extends Plugin {
       this.initialize();
       this.setEvents();
       this.addSettingTab(new MyPluginSettingTab(this.app, this));
-      console.log('Values are: ' + this.settings);
       this.loadSettings().then(() => {
         this.addStyle();
       });
@@ -40,51 +39,57 @@ export default class MyPlugin extends Plugin {
 
   // Initializes the variables to store DOM HTML elements
   initialize: Function = () => {
-    [this.leftRibbon, this.rightRibbon] = Array.from(
-      document.getElementsByClassName(
-        'workspace-ribbon'
-      ) as HTMLCollectionOf<HTMLElement>
-    );
-
-    [this.leftSidebar, this.rightSidebar] = Array.from(
-      document.getElementsByClassName(
-        'mod-horizontal'
-      ) as HTMLCollectionOf<HTMLElement>
-    );
+    this.leftRibbon = (this.app.workspace.leftRibbon as Workspace).containerEl;
+    this.rightRibbon = (this.app.workspace
+      .rightRibbon as Workspace).containerEl;
+    this.leftSidebar = ((this.app.workspace
+      .leftSplit as unknown) as Workspace).containerEl;
+    this.rightSidebar = ((this.app.workspace
+      .rightSplit as unknown) as Workspace).containerEl;
   };
 
   // Adds event listeners to the HTML elements
   setEvents: Function = () => {
-    this.registerDomEvent(document, 'mouseout', () => {
-      this.collapseSidebar();
-    });
+    this.registerDomEvent(
+      (this.app.workspace.rootSplit as any).containerEl,
+      'mouseenter',
+      () => {
+        this.collapseSidebar();
+      }
+    );
 
-    this.registerDomEvent(this.leftRibbon, 'mouseover', () => {
-      this.expandSidebar(this.leftSidebar);
-    });
-    this.registerDomEvent(this.rightRibbon, 'mouseover', () => {
-      this.expandSidebar(this.rightSidebar);
-    });
-
-    this.registerDomEvent(this.leftSidebar, 'mouseover', () => {
+    this.registerDomEvent(this.leftRibbon, 'mouseenter', () => {
       this.expandSidebar(this.leftSidebar);
     });
 
-    this.registerDomEvent(this.rightSidebar, 'mouseover', () => {
+    this.registerDomEvent(this.rightRibbon, 'mouseenter', () => {
       this.expandSidebar(this.rightSidebar);
     });
+
+    // To avoid 'glitch'
+    this.registerDomEvent(
+      (this.app.workspace.leftSplit as any).resizeHandleEl,
+      'mouseenter',
+      () => {
+        this.expandSidebar(this.leftSidebar);
+      }
+    );
   };
 
   // Changes sidebar style width and display to expand it
   expandSidebar = (sidebar: HTMLElement) => {
     try {
       if (sidebar == this.leftSidebar && this.settings.leftSideEnabled) {
-        sidebar.style.width = String(this.settings.leftSidebarWidth) + 'px';
-        sidebar.style.removeProperty('display');
+        (this.app.workspace.leftSplit as any).setSize(
+          this.settings.leftSidebarWidth
+        );
+        (this.app.workspace.leftSplit as any).expand();
       }
       if (sidebar == this.rightSidebar && this.settings.rightSideEnabled) {
-        sidebar.style.width = String(this.settings.rightSidebarWidth) + 'px';
-        sidebar.style.removeProperty('display');
+        (this.app.workspace.rightSplit as any).setSize(
+          this.settings.rightSidebarWidth
+        );
+        (this.app.workspace.rightSplit as any).expand();
       }
     } catch (e) {
       console.log('Failed to read property');
@@ -94,20 +99,20 @@ export default class MyPlugin extends Plugin {
   // Changes sidebar style width to collapse it
   collapseSidebar = () => {
     if (this.settings.leftSideEnabled) {
-      this.leftSidebar.style.width = '0px';
+      (this.app.workspace.leftSplit as any).collapse();
     }
     if (this.settings.rightSideEnabled) {
-      this.rightSidebar.style.width = '0px';
+      (this.app.workspace.rightSplit as any).collapse();
     }
   };
 
   // CSS for adding transition animation
   addStyle = () => {
-    if (this.settings.leftSidebarAnimation && this.settings.leftSideEnabled) {
+    if (this.settings.leftSidebarAnimation) {
       this.leftSidebar.classList.add('sidebar');
       this.leftSidebar.classList.toggle('.sidebar.active');
     }
-    if (this.settings.rightSidebarAnimation && this.settings.rightSideEnabled) {
+    if (this.settings.rightSidebarAnimation) {
       this.rightSidebar.classList.add('sidebar');
       this.rightSidebar.classList.toggle('.sidebar.active');
     }
@@ -115,13 +120,10 @@ export default class MyPlugin extends Plugin {
 
   // Removes transition animation
   removeStyle = () => {
-    if (!this.settings.leftSidebarAnimation && this.settings.leftSideEnabled) {
+    if (!this.settings.leftSidebarAnimation) {
       this.leftSidebar.classList.remove('sidebar');
     }
-    if (
-      !this.settings.rightSidebarAnimation &&
-      this.settings.rightSideEnabled
-    ) {
+    if (!this.settings.rightSidebarAnimation) {
       this.rightSidebar.classList.remove('sidebar');
     }
   };
