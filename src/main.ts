@@ -1,21 +1,16 @@
 import { App, Plugin, PluginSettingTab, Setting, Workspace } from 'obsidian';
-
 interface MyPluginSettings {
-  leftSideEnabled: boolean;
-  rightSideEnabled: boolean;
-  leftSidebarAnimation: boolean;
-  rightSidebarAnimation: boolean;
   leftSidebarWidth: number;
   rightSidebarWidth: number;
+  leftPin: boolean;
+  rightPin: boolean;
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
-  leftSideEnabled: true,
-  rightSideEnabled: true,
-  leftSidebarAnimation: false,
-  rightSidebarAnimation: false,
   leftSidebarWidth: 252,
   rightSidebarWidth: 252,
+  leftPin: false,
+  rightPin: false,
 };
 
 export default class MyPlugin extends Plugin {
@@ -32,7 +27,14 @@ export default class MyPlugin extends Plugin {
       this.setEvents();
       this.addSettingTab(new MyPluginSettingTab(this.app, this));
       this.loadSettings().then(() => {
-        this.addStyle();
+        if (this.settings.leftPin) {
+          this.expandSidebar(this.leftSidebar);
+          console.log('left side expanded on load');
+        }
+        if (this.settings.rightPin) {
+          this.expandSidebar(this.rightSidebar);
+          console.log('right side expanded on load');
+        }
       });
     });
   }
@@ -50,6 +52,10 @@ export default class MyPlugin extends Plugin {
 
   // Adds event listeners to the HTML elements
   setEvents: Function = () => {
+    this.registerDomEvent(document, 'mouseleave', () => {
+      this.collapseSidebar();
+    });
+
     this.registerDomEvent(
       (this.app.workspace.rootSplit as any).containerEl,
       'mouseenter',
@@ -59,11 +65,15 @@ export default class MyPlugin extends Plugin {
     );
 
     this.registerDomEvent(this.leftRibbon, 'mouseenter', () => {
-      this.expandSidebar(this.leftSidebar);
+      if (!this.settings.leftPin) {
+        this.expandSidebar(this.leftSidebar);
+      }
     });
 
     this.registerDomEvent(this.rightRibbon, 'mouseenter', () => {
-      this.expandSidebar(this.rightSidebar);
+      if (!this.settings.rightPin) {
+        this.expandSidebar(this.rightSidebar);
+      }
     });
 
     // To avoid 'glitch'
@@ -71,23 +81,48 @@ export default class MyPlugin extends Plugin {
       (this.app.workspace.leftSplit as any).resizeHandleEl,
       'mouseenter',
       () => {
-        this.expandSidebar(this.leftSidebar);
+        if (!this.settings.leftPin) {
+          this.expandSidebar(this.leftSidebar);
+        }
       }
     );
+    this.registerDomEvent(
+      (this.app.workspace.rightSplit as any).resizeHandleEl,
+      'mouseenter',
+      () => {
+        if (!this.settings.rightPin) {
+          this.expandSidebar(this.rightSidebar);
+        }
+      }
+    );
+
+    this.registerDomEvent(this.leftRibbon, 'dblclick', () => {
+      this.settings.leftPin = !this.settings.leftPin;
+      this.saveSettings();
+    });
+
+    this.registerDomEvent(this.rightRibbon, 'dblclick', () => {
+      this.settings.rightPin = !this.settings.rightPin;
+      this.saveSettings();
+    });
   };
 
   // Changes sidebar style width and display to expand it
   expandSidebar = (sidebar: HTMLElement) => {
     try {
-      if (sidebar == this.leftSidebar && this.settings.leftSideEnabled) {
+      if (sidebar == this.leftSidebar) {
         (this.app.workspace.leftSplit as any).setSize(
-          this.settings.leftSidebarWidth
+          this.settings.leftSidebarWidth == 0
+            ? DEFAULT_SETTINGS.leftSidebarWidth
+            : this.settings.leftSidebarWidth
         );
         (this.app.workspace.leftSplit as any).expand();
       }
-      if (sidebar == this.rightSidebar && this.settings.rightSideEnabled) {
+      if (sidebar == this.rightSidebar) {
         (this.app.workspace.rightSplit as any).setSize(
-          this.settings.rightSidebarWidth
+          this.settings.rightSidebarWidth == 0
+            ? DEFAULT_SETTINGS.rightSidebarWidth
+            : this.settings.rightSidebarWidth
         );
         (this.app.workspace.rightSplit as any).expand();
       }
@@ -98,34 +133,16 @@ export default class MyPlugin extends Plugin {
 
   // Changes sidebar style width to collapse it
   collapseSidebar = () => {
-    if (this.settings.leftSideEnabled) {
-      (this.app.workspace.leftSplit as any).collapse();
-    }
-    if (this.settings.rightSideEnabled) {
-      (this.app.workspace.rightSplit as any).collapse();
-    }
-  };
-
-  // CSS for adding transition animation
-  addStyle = () => {
-    if (this.settings.leftSidebarAnimation) {
-      this.leftSidebar.classList.add('sidebar');
-      this.leftSidebar.classList.toggle('.sidebar.active');
-    }
-    if (this.settings.rightSidebarAnimation) {
-      this.rightSidebar.classList.add('sidebar');
-      this.rightSidebar.classList.toggle('.sidebar.active');
-    }
-  };
-
-  // Removes transition animation
-  removeStyle = () => {
-    if (!this.settings.leftSidebarAnimation) {
-      this.leftSidebar.classList.remove('sidebar');
-    }
-    if (!this.settings.rightSidebarAnimation) {
-      this.rightSidebar.classList.remove('sidebar');
-    }
+    this.loadSettings().then(() => {
+      if (!this.settings.leftPin) {
+        (this.app.workspace.leftSplit as any).collapse();
+        console.log(' left collapsed!');
+      }
+      if (!this.settings.rightPin) {
+        (this.app.workspace.rightSplit as any).collapse();
+        console.log(' right collapsed!');
+      }
+    });
   };
 
   onunload() {
@@ -157,115 +174,34 @@ class MyPluginSettingTab extends PluginSettingTab {
 
     this.plugin.loadData();
     containerEl.createEl('h2', { text: 'Sidebar Expand On Hover' });
-    containerEl.createEl('h4', { text: 'Enable Individual Sidebar' });
-    const leftSideEnabled = new Setting(containerEl);
-    leftSideEnabled.setName('Left Sidebar');
-    leftSideEnabled.setDesc(
-      'Toggle to enable/disable left sidebar expand on hover'
-    );
-    leftSideEnabled.addToggle((t) => {
-      t.setValue(this.plugin.settings.leftSideEnabled);
-      t.onChange(async (v) => {
-        if (v) {
-          this.plugin.settings.leftSideEnabled = true;
-          this.plugin.saveSettings();
-          this.plugin.addStyle();
-        } else {
-          this.plugin.settings.leftSideEnabled = false;
-          this.plugin.saveSettings();
-          this.plugin.removeStyle();
-        }
-        this.plugin.setEvents();
-      });
-    });
-
-    const rightSideEnabled = new Setting(containerEl);
-    rightSideEnabled.setName('Right Sidebar');
-    rightSideEnabled.setDesc(
-      'Toggle to enable/disable right sidebar expand on hover'
-    );
-    rightSideEnabled.addToggle((t) => {
-      t.setValue(this.plugin.settings.rightSideEnabled);
-      t.onChange(async (v) => {
-        if (v) {
-          this.plugin.settings.rightSideEnabled = true;
-          this.plugin.saveSettings();
-          this.plugin.addStyle();
-        } else {
-          this.plugin.settings.rightSideEnabled = false;
-          this.plugin.saveSettings();
-          this.plugin.removeStyle();
-        }
-        this.plugin.setEvents();
-      });
-    });
-
-    containerEl.createEl('h4', { text: 'Sidebar Animation' });
-    const leftSidebarAnimation = new Setting(containerEl);
-    leftSidebarAnimation.setName('Left Sidebar');
-    leftSidebarAnimation.setDesc(
-      'Toggle to enable/disable left sidebar animation'
-    );
-    leftSidebarAnimation.addToggle((t) => {
-      t.setValue(this.plugin.settings.leftSidebarAnimation);
-      t.onChange(async (v) => {
-        if (v) {
-          this.plugin.settings.leftSidebarAnimation = true;
-          this.plugin.saveSettings();
-          this.plugin.addStyle();
-        } else {
-          this.plugin.settings.leftSidebarAnimation = false;
-          this.plugin.saveSettings();
-          this.plugin.removeStyle();
-        }
-      });
-    });
-
-    const rightSidebarAnimation = new Setting(containerEl);
-    rightSidebarAnimation.setName('Right Sidebar');
-    rightSidebarAnimation.setDesc(
-      'Toggle to enable/disable right sidebar animation'
-    );
-    rightSidebarAnimation.addToggle((t) => {
-      t.setValue(this.plugin.settings.rightSidebarAnimation);
-      t.onChange(async (v) => {
-        if (v) {
-          this.plugin.settings.rightSidebarAnimation = true;
-          this.plugin.saveSettings();
-          this.plugin.addStyle();
-        } else {
-          this.plugin.settings.rightSidebarAnimation = false;
-          this.plugin.saveSettings();
-          this.plugin.removeStyle();
-        }
-      });
-    });
 
     containerEl.createEl('h4', { text: 'Sidebar Expand Width' });
     const leftSidebarWidth = new Setting(containerEl);
     leftSidebarWidth.setName('Left Sidebar');
     leftSidebarWidth.setDesc('Set the width of left sidebar in pixel unit');
-    leftSidebarWidth.addText((t) =>
-      t
-        .setPlaceholder('Default: 252')
-        .setValue(String(this.plugin.settings.leftSidebarWidth))
-        .onChange(async (value) => {
-          this.plugin.settings.leftSidebarWidth = Number(value);
-          this.plugin.saveSettings();
-        })
-    );
+    leftSidebarWidth.addText((t) => {
+      t.setValue(String(this.plugin.settings.leftSidebarWidth));
+      t.setPlaceholder('Default: 252').onChange(async (value) => {
+        this.plugin.settings.leftSidebarWidth = Number(value);
+        (this.app.workspace.leftSplit as any).setSize(
+          this.plugin.settings.leftSidebarWidth
+        );
+        this.plugin.saveSettings();
+      });
+    });
 
     const rightSidebarWidth = new Setting(containerEl);
     rightSidebarWidth.setName('Right Sidebar');
     rightSidebarWidth.setDesc('Set the width of right sidebar in pixel unit');
-    rightSidebarWidth.addText((t) =>
-      t
-        .setPlaceholder('Default: 252')
-        .setValue(String(this.plugin.settings.rightSidebarWidth))
-        .onChange(async (value) => {
-          this.plugin.settings.rightSidebarWidth = Number(value);
-          this.plugin.saveSettings();
-        })
-    );
+    rightSidebarWidth.addText((t) => {
+      t.setValue(String(this.plugin.settings.rightSidebarWidth));
+      t.setPlaceholder('Default: 252').onChange(async (value) => {
+        this.plugin.settings.rightSidebarWidth = Number(value);
+        (this.app.workspace.rightSplit as any).setSize(
+          this.plugin.settings.rightSidebarWidth
+        );
+        this.plugin.saveSettings();
+      });
+    });
   }
 }
