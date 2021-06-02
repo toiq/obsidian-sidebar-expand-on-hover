@@ -1,20 +1,20 @@
 ## Obsidian Sidebar Expand on Hover Plugin
 
-This plugin enables users to:
+### Features
 
-- Expand sidebar when mouse hovers over to the side ribbons.
-- Collapse sidebar otherwise.
+- Expand sidebars on mouse hovering on the corresponding ribbons.
+- Pin/unpin sidebar state(expand/collapse) by double clicking on the ribbons.
+- Set sidebar width either by dragging or setting the value in plugin settings.
+- Keep previous state of sidebars on relaunch.
 
-### Plugin in action!
+### Demo:
 
 ![Plugin in Action: Auto expand of sidebar when hovering on ribbon](./demo.gif)
 
 ### TODO:
 
-- [x] Basic Functionality
-- [x] Transition animation
-- [x] Option to enable/disable sidebar animation individually for both sides.
-- [x] Option to set width of individual sidebars
+- [ ] Option to toggle sidebar animations.
+- [ ] Change animation style.
 
 ### How to Install (Manual):
 
