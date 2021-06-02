@@ -29,11 +29,9 @@ export default class MyPlugin extends Plugin {
       this.loadSettings().then(() => {
         if (this.settings.leftPin) {
           this.expandSidebar(this.leftSidebar);
-          console.log('left side expanded on load');
         }
         if (this.settings.rightPin) {
           this.expandSidebar(this.rightSidebar);
-          console.log('right side expanded on load');
         }
       });
     });
@@ -84,6 +82,10 @@ export default class MyPlugin extends Plugin {
         if (!this.settings.leftPin) {
           this.expandSidebar(this.leftSidebar);
         }
+        this.settings.leftSidebarWidth = Number(
+          (this.app.workspace.leftSplit as any).size
+        );
+        this.saveSettings();
       }
     );
     this.registerDomEvent(
@@ -93,14 +95,20 @@ export default class MyPlugin extends Plugin {
         if (!this.settings.rightPin) {
           this.expandSidebar(this.rightSidebar);
         }
+        this.settings.rightSidebarWidth = Number(
+          (this.app.workspace.rightSplit as any).size
+        );
+        this.saveSettings();
       }
     );
 
+    // Double click on left ribbon to toggle pin/unpin of left sidebar
     this.registerDomEvent(this.leftRibbon, 'dblclick', () => {
       this.settings.leftPin = !this.settings.leftPin;
       this.saveSettings();
     });
 
+    // Double click on right ribbon to toggle pin/unpin of right sidebar
     this.registerDomEvent(this.rightRibbon, 'dblclick', () => {
       this.settings.rightPin = !this.settings.rightPin;
       this.saveSettings();
@@ -136,11 +144,9 @@ export default class MyPlugin extends Plugin {
     this.loadSettings().then(() => {
       if (!this.settings.leftPin) {
         (this.app.workspace.leftSplit as any).collapse();
-        console.log(' left collapsed!');
       }
       if (!this.settings.rightPin) {
         (this.app.workspace.rightSplit as any).collapse();
-        console.log(' right collapsed!');
       }
     });
   };
