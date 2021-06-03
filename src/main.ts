@@ -13,7 +13,7 @@ const DEFAULT_SETTINGS: PluginSettings = {
   rightPin: false,
 };
 
-export default class SidebarHoverOnExpandPlugin extends Plugin {
+export default class SidebarExpandOnHoverPlugin extends Plugin {
   settings: PluginSettings;
   leftRibbon: HTMLElement;
   rightRibbon: HTMLElement;
@@ -164,9 +164,9 @@ export default class SidebarHoverOnExpandPlugin extends Plugin {
 
 // Plugin settings
 class MyPluginSettingTab extends PluginSettingTab {
-  plugin: SidebarHoverOnExpandPlugin;
+  plugin: SidebarExpandOnHoverPlugin;
 
-  constructor(app: App, plugin: SidebarHoverOnExpandPlugin) {
+  constructor(app: App, plugin: SidebarExpandOnHoverPlugin) {
     super(app, plugin);
     this.plugin = plugin;
   }
