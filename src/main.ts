@@ -1,20 +1,20 @@
 import { App, Plugin, PluginSettingTab, Setting, Workspace } from 'obsidian';
-interface MyPluginSettings {
+interface PluginSettings {
   leftSidebarWidth: number;
   rightSidebarWidth: number;
   leftPin: boolean;
   rightPin: boolean;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
+const DEFAULT_SETTINGS: PluginSettings = {
   leftSidebarWidth: 252,
   rightSidebarWidth: 252,
   leftPin: false,
   rightPin: false,
 };
 
-export default class MyPlugin extends Plugin {
-  settings: MyPluginSettings;
+export default class SidebarHoverOnExpandPlugin extends Plugin {
+  settings: PluginSettings;
   leftRibbon: HTMLElement;
   rightRibbon: HTMLElement;
   leftSidebar: HTMLElement;
@@ -23,42 +23,50 @@ export default class MyPlugin extends Plugin {
   async onload() {
     // Initialize and set events when layout is fully ready
     this.app.workspace.onLayoutReady(() => {
-      this.initialize();
-      this.setEvents();
-      this.addSettingTab(new MyPluginSettingTab(this.app, this));
       this.loadSettings().then(() => {
-        if (this.settings.leftPin) {
-          this.expandSidebar(this.leftSidebar);
-        }
-        if (this.settings.rightPin) {
-          this.expandSidebar(this.rightSidebar);
-        }
+        this.initialize();
+        this.setEvents();
+        this.addSettingTab(new MyPluginSettingTab(this.app, this));
+        // This timeout is needed to override Obsidian sidebar state at launch
+        setTimeout(() => {
+          if (this.settings.leftPin) {
+            this.expandSidebar(this.leftSidebar);
+          } else {
+            this.collapseSidebar(this.leftSidebar);
+          }
+          if (this.settings.rightPin) {
+            this.expandSidebar(this.rightSidebar);
+          } else {
+            this.collapseSidebar(this.rightSidebar);
+          }
+        }, 200);
       });
     });
   }
 
   // Initializes the variables to store DOM HTML elements
   initialize: Function = () => {
-    this.leftRibbon = (this.app.workspace.leftRibbon as Workspace).containerEl;
-    this.rightRibbon = (this.app.workspace
-      .rightRibbon as Workspace).containerEl;
+    this.leftRibbon = (this.app.workspace.leftRibbon as any).containerEl;
+    this.rightRibbon = (this.app.workspace.rightRibbon as any).containerEl;
     this.leftSidebar = ((this.app.workspace
-      .leftSplit as unknown) as Workspace).containerEl;
+      .leftSplit as unknown) as any).containerEl;
     this.rightSidebar = ((this.app.workspace
-      .rightSplit as unknown) as Workspace).containerEl;
+      .rightSplit as unknown) as any).containerEl;
   };
 
   // Adds event listeners to the HTML elements
   setEvents: Function = () => {
     this.registerDomEvent(document, 'mouseleave', () => {
-      this.collapseSidebar();
+      this.collapseSidebar(this.leftSidebar);
+      this.collapseSidebar(this.rightSidebar);
     });
 
     this.registerDomEvent(
       (this.app.workspace.rootSplit as any).containerEl,
       'mouseenter',
       () => {
-        this.collapseSidebar();
+        this.collapseSidebar(this.leftSidebar);
+        this.collapseSidebar(this.rightSidebar);
       }
     );
 
@@ -117,38 +125,28 @@ export default class MyPlugin extends Plugin {
 
   // Changes sidebar style width and display to expand it
   expandSidebar = (sidebar: HTMLElement) => {
-    try {
-      if (sidebar == this.leftSidebar) {
-        (this.app.workspace.leftSplit as any).setSize(
-          this.settings.leftSidebarWidth == 0
-            ? DEFAULT_SETTINGS.leftSidebarWidth
-            : this.settings.leftSidebarWidth
-        );
-        (this.app.workspace.leftSplit as any).expand();
-      }
-      if (sidebar == this.rightSidebar) {
-        (this.app.workspace.rightSplit as any).setSize(
-          this.settings.rightSidebarWidth == 0
-            ? DEFAULT_SETTINGS.rightSidebarWidth
-            : this.settings.rightSidebarWidth
-        );
-        (this.app.workspace.rightSplit as any).expand();
-      }
-    } catch (e) {
-      console.log('Failed to read property');
+    if (sidebar == this.leftSidebar) {
+      (this.app.workspace.leftSplit as any).setSize(
+        this.settings.leftSidebarWidth
+      );
+      (this.app.workspace.leftSplit as any).expand();
+    }
+    if (sidebar == this.rightSidebar) {
+      (this.app.workspace.rightSplit as any).setSize(
+        this.settings.rightSidebarWidth
+      );
+      (this.app.workspace.rightSplit as any).expand();
     }
   };
 
   // Changes sidebar style width to collapse it
-  collapseSidebar = () => {
-    this.loadSettings().then(() => {
-      if (!this.settings.leftPin) {
-        (this.app.workspace.leftSplit as any).collapse();
-      }
-      if (!this.settings.rightPin) {
-        (this.app.workspace.rightSplit as any).collapse();
-      }
-    });
+  collapseSidebar = (sidebar: HTMLElement) => {
+    if (sidebar == this.leftSidebar && !this.settings.leftPin) {
+      (this.app.workspace.leftSplit as any).collapse();
+    }
+    if (sidebar == this.rightSidebar && !this.settings.rightPin) {
+      (this.app.workspace.rightSplit as any).collapse();
+    }
   };
 
   onunload() {
@@ -166,9 +164,9 @@ export default class MyPlugin extends Plugin {
 
 // Plugin settings
 class MyPluginSettingTab extends PluginSettingTab {
-  plugin: MyPlugin;
+  plugin: SidebarHoverOnExpandPlugin;
 
-  constructor(app: App, plugin: MyPlugin) {
+  constructor(app: App, plugin: SidebarHoverOnExpandPlugin) {
     super(app, plugin);
     this.plugin = plugin;
   }
