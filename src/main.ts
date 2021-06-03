@@ -1,4 +1,4 @@
-import { App, Plugin, PluginSettingTab, Setting, Workspace } from 'obsidian';
+import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
 interface PluginSettings {
   leftSidebarWidth: number;
   rightSidebarWidth: number;
