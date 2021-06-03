@@ -1,12 +1,12 @@
 import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
-interface PluginSettings {
+interface SidebarExpandOnHoverSettings {
   leftSidebarWidth: number;
   rightSidebarWidth: number;
   leftPin: boolean;
   rightPin: boolean;
 }
 
-const DEFAULT_SETTINGS: PluginSettings = {
+const DEFAULT_SETTINGS: SidebarExpandOnHoverSettings = {
   leftSidebarWidth: 252,
   rightSidebarWidth: 252,
   leftPin: false,
@@ -14,7 +14,7 @@ const DEFAULT_SETTINGS: PluginSettings = {
 };
 
 export default class SidebarExpandOnHoverPlugin extends Plugin {
-  settings: PluginSettings;
+  settings: SidebarExpandOnHoverSettings;
   leftRibbon: HTMLElement;
   rightRibbon: HTMLElement;
   leftSidebar: HTMLElement;
@@ -26,7 +26,7 @@ export default class SidebarExpandOnHoverPlugin extends Plugin {
       this.loadSettings().then(() => {
         this.initialize();
         this.setEvents();
-        this.addSettingTab(new MyPluginSettingTab(this.app, this));
+        this.addSettingTab(new SidebarExpandOnHoverSettingTab(this.app, this));
         // This timeout is needed to override Obsidian sidebar state at launch
         setTimeout(() => {
           if (this.settings.leftPin) {
@@ -163,7 +163,7 @@ export default class SidebarExpandOnHoverPlugin extends Plugin {
 }
 
 // Plugin settings
-class MyPluginSettingTab extends PluginSettingTab {
+class SidebarExpandOnHoverSettingTab extends PluginSettingTab {
   plugin: SidebarExpandOnHoverPlugin;
 
   constructor(app: App, plugin: SidebarExpandOnHoverPlugin) {
