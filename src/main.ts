@@ -72,9 +72,9 @@ export default class SidebarExpandOnHoverPlugin extends Plugin {
           this.settings.rightPin = false;
         this.saveSettings();
         if (this.settings.rightSideEnabled) {
-          new Notice('right Sidebar Expand on Hover Enabled');
+          new Notice('Right Sidebar Expand on Hover Enabled');
         } else {
-          new Notice('right Sidebar Expand on Hover disabled');
+          new Notice('Right Sidebar Expand on Hover disabled');
         }
       },
     });
