@@ -1,4 +1,4 @@
-import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 interface SidebarExpandOnHoverSettings {
   leftSidebarWidth: number;
   rightSidebarWidth: number;
@@ -45,6 +45,38 @@ export default class SidebarExpandOnHoverPlugin extends Plugin {
           }
         }, 200);
       });
+    });
+
+    this.addCommand({
+      id: 'Toggle-Left-Sidebar-Expand-On-Hover',
+      name: 'Toggle Left Sidebar Behavior',
+      callback: () => {
+        this.settings.leftSideEnabled = !this.settings.leftSideEnabled;
+        if (this.settings.leftSideEnabled == false)
+          this.settings.leftPin = false;
+        this.saveSettings();
+        if (this.settings.leftSideEnabled) {
+          new Notice('Left Sidebar Expand on Hover Enabled');
+        } else {
+          new Notice('Left Sidebar Expand on Hover disabled');
+        }
+      },
+    });
+
+    this.addCommand({
+      id: 'Toggle-Right-Sidebar-Expand-On-Hover',
+      name: 'Toggle Right Sidebar Behavior',
+      callback: () => {
+        this.settings.rightSideEnabled = !this.settings.rightSideEnabled;
+        if (this.settings.rightSideEnabled == false)
+          this.settings.rightPin = false;
+        this.saveSettings();
+        if (this.settings.rightSideEnabled) {
+          new Notice('right Sidebar Expand on Hover Enabled');
+        } else {
+          new Notice('right Sidebar Expand on Hover disabled');
+        }
+      },
     });
   }
 
