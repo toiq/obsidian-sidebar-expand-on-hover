@@ -4,6 +4,8 @@ interface SidebarExpandOnHoverSettings {
   rightSidebarWidth: number;
   leftPin: boolean;
   rightPin: boolean;
+  leftSideEnabled: boolean;
+  rightSideEnabled: boolean;
 }
 
 const DEFAULT_SETTINGS: SidebarExpandOnHoverSettings = {
@@ -11,6 +13,8 @@ const DEFAULT_SETTINGS: SidebarExpandOnHoverSettings = {
   rightSidebarWidth: 252,
   leftPin: false,
   rightPin: false,
+  leftSideEnabled: true,
+  rightSideEnabled: true,
 };
 
 export default class SidebarExpandOnHoverPlugin extends Plugin {
@@ -112,26 +116,30 @@ export default class SidebarExpandOnHoverPlugin extends Plugin {
 
     // Double click on left ribbon to toggle pin/unpin of left sidebar
     this.registerDomEvent(this.leftRibbon, 'dblclick', () => {
-      this.settings.leftPin = !this.settings.leftPin;
-      this.saveSettings();
+      if (this.settings.leftSideEnabled) {
+        this.settings.leftPin = !this.settings.leftPin;
+        this.saveSettings();
+      }
     });
 
     // Double click on right ribbon to toggle pin/unpin of right sidebar
     this.registerDomEvent(this.rightRibbon, 'dblclick', () => {
-      this.settings.rightPin = !this.settings.rightPin;
-      this.saveSettings();
+      if (this.settings.rightSideEnabled) {
+        this.settings.rightPin = !this.settings.rightPin;
+        this.saveSettings();
+      }
     });
   };
 
   // Changes sidebar style width and display to expand it
   expandSidebar = (sidebar: HTMLElement) => {
-    if (sidebar == this.leftSidebar) {
+    if (sidebar == this.leftSidebar && this.settings.leftSideEnabled) {
       (this.app.workspace.leftSplit as any).setSize(
         this.settings.leftSidebarWidth
       );
       (this.app.workspace.leftSplit as any).expand();
     }
-    if (sidebar == this.rightSidebar) {
+    if (sidebar == this.rightSidebar && this.settings.rightSideEnabled) {
       (this.app.workspace.rightSplit as any).setSize(
         this.settings.rightSidebarWidth
       );
@@ -141,10 +149,18 @@ export default class SidebarExpandOnHoverPlugin extends Plugin {
 
   // Changes sidebar style width to collapse it
   collapseSidebar = (sidebar: HTMLElement) => {
-    if (sidebar == this.leftSidebar && !this.settings.leftPin) {
+    if (
+      sidebar == this.leftSidebar &&
+      !this.settings.leftPin &&
+      this.settings.leftSideEnabled
+    ) {
       (this.app.workspace.leftSplit as any).collapse();
     }
-    if (sidebar == this.rightSidebar && !this.settings.rightPin) {
+    if (
+      sidebar == this.rightSidebar &&
+      !this.settings.rightPin &&
+      this.settings.rightSideEnabled
+    ) {
       (this.app.workspace.rightSplit as any).collapse();
     }
   };
@@ -178,6 +194,41 @@ class SidebarExpandOnHoverSettingTab extends PluginSettingTab {
 
     this.plugin.loadData();
     containerEl.createEl('h2', { text: 'Sidebar Expand On Hover' });
+    containerEl.createEl('p', {
+      text: `Note: You can also double click on each of the ribbons to 'pin' the corresponding 
+      sidebar so that it remains expanded.
+      You can undo this 'pinned state' behavior by double clicking on the ribbons again.
+      This only works when you have that sidebar 'enabled' in this settings. Enjoy! :D`,
+    });
+
+    containerEl.createEl('h4', { text: 'Enable Individual Sidebar' });
+    const leftSideEnabled = new Setting(containerEl);
+    leftSideEnabled.setName('Left Sidebar');
+    leftSideEnabled.setDesc(
+      'Toggle to enable/disable left sidebar expand on hover'
+    );
+    leftSideEnabled.addToggle((t) => {
+      t.setValue(this.plugin.settings.leftSideEnabled);
+      t.onChange(async (v) => {
+        this.plugin.settings.leftSideEnabled = v;
+        if (v == false) this.plugin.settings.leftPin = false;
+        this.plugin.saveSettings();
+      });
+    });
+
+    const rightSideEnabled = new Setting(containerEl);
+    rightSideEnabled.setName('Right Sidebar');
+    rightSideEnabled.setDesc(
+      'Toggle to enable/disable right sidebar expand on hover'
+    );
+    rightSideEnabled.addToggle((t) => {
+      t.setValue(this.plugin.settings.rightSideEnabled);
+      t.onChange(async (v) => {
+        this.plugin.settings.rightSideEnabled = v;
+        if (v == false) this.plugin.settings.rightPin = false;
+        this.plugin.saveSettings();
+      });
+    });
 
     containerEl.createEl('h4', { text: 'Sidebar Expand Width' });
     const leftSidebarWidth = new Setting(containerEl);
