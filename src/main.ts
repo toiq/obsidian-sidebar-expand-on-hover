@@ -6,6 +6,7 @@ interface SidebarExpandOnHoverSettings {
   rightPin: boolean;
   leftSideEnabled: boolean;
   rightSideEnabled: boolean;
+  hoverDelay: number;
 }
 
 const DEFAULT_SETTINGS: SidebarExpandOnHoverSettings = {
@@ -15,6 +16,7 @@ const DEFAULT_SETTINGS: SidebarExpandOnHoverSettings = {
   rightPin: false,
   leftSideEnabled: true,
   rightSideEnabled: true,
+  hoverDelay: 0
 };
 
 export default class SidebarExpandOnHoverPlugin extends Plugin {
@@ -23,6 +25,7 @@ export default class SidebarExpandOnHoverPlugin extends Plugin {
   rightRibbon: HTMLElement;
   leftSidebar: HTMLElement;
   rightSidebar: HTMLElement;
+  hoverTimeout: NodeJS.Timeout;
 
   async onload() {
     // Initialize and set events when layout is fully ready
@@ -95,6 +98,7 @@ export default class SidebarExpandOnHoverPlugin extends Plugin {
     this.registerDomEvent(document, 'mouseleave', () => {
       this.collapseSidebar(this.leftSidebar);
       this.collapseSidebar(this.rightSidebar);
+      clearTimeout(this.hoverTimeout);
     });
 
     this.registerDomEvent(
@@ -103,18 +107,23 @@ export default class SidebarExpandOnHoverPlugin extends Plugin {
       () => {
         this.collapseSidebar(this.leftSidebar);
         this.collapseSidebar(this.rightSidebar);
+        clearTimeout(this.hoverTimeout);
       }
     );
 
     this.registerDomEvent(this.leftRibbon, 'mouseenter', () => {
       if (!this.settings.leftPin) {
-        this.expandSidebar(this.leftSidebar);
+        this.hoverTimeout = setTimeout(() => {
+          this.expandSidebar(this.leftSidebar)
+      }, this.settings.hoverDelay);
       }
     });
 
     this.registerDomEvent(this.rightRibbon, 'mouseenter', () => {
       if (!this.settings.rightPin) {
-        this.expandSidebar(this.rightSidebar);
+        this.hoverTimeout = setTimeout(() => {
+          this.expandSidebar(this.rightSidebar)
+        }, this.settings.hoverDelay);
       }
     });
 
@@ -124,7 +133,9 @@ export default class SidebarExpandOnHoverPlugin extends Plugin {
       'mouseenter',
       () => {
         if (!this.settings.leftPin) {
-          this.expandSidebar(this.leftSidebar);
+          this.hoverTimeout = setTimeout(() => {
+            this.expandSidebar(this.leftSidebar)
+          }, this.settings.hoverDelay);
         }
         this.settings.leftSidebarWidth = Number(
           (this.app.workspace.leftSplit as any).size
@@ -137,7 +148,9 @@ export default class SidebarExpandOnHoverPlugin extends Plugin {
       'mouseenter',
       () => {
         if (!this.settings.rightPin) {
-          this.expandSidebar(this.rightSidebar);
+          this.hoverTimeout = setTimeout(() => {
+            this.expandSidebar(this.rightSidebar)
+          }, this.settings.hoverDelay);
         }
         this.settings.rightSidebarWidth = Number(
           (this.app.workspace.rightSplit as any).size
@@ -287,6 +300,18 @@ class SidebarExpandOnHoverSettingTab extends PluginSettingTab {
         (this.app.workspace.rightSplit as any).setSize(
           this.plugin.settings.rightSidebarWidth
         );
+        this.plugin.saveSettings();
+      });
+    });
+
+    containerEl.createEl('h4', { text: 'Delay time' });
+    const hoverDelay = new Setting(containerEl);
+    hoverDelay.setName('Hover Delay');
+    hoverDelay.setDesc('Set the delay for the hover to take effect in milliseconds');
+    hoverDelay.addText((t) => {
+      t.setValue(String(this.plugin.settings.hoverDelay));
+      t.setPlaceholder('Default: 0').onChange(async (value) => {
+        this.plugin.settings.hoverDelay = Number(value);
         this.plugin.saveSettings();
       });
     });
