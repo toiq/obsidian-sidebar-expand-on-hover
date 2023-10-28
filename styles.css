@@ -18,3 +18,11 @@ ul ul::before {
   top: 0;
   bottom: 0;
 }
+/* Make the ribbon respond to the mouseenter event. */
+.workspace-ribbon.side-dock-ribbon.mod-right.is-collapsed {
+  display: block !important;
+  position: absolute !important;
+  right: 0 !important;
+  height: 100vh !important;
+  background: transparent !important;
+}

@@ -100,8 +100,11 @@ export default class SidebarExpandOnHoverPlugin extends Plugin {
     this.registerDomEvent(
       (this.app.workspace.rootSplit as any).containerEl,
       'mouseenter',
-      () => {
+      (ev) => {
         this.collapseSidebar(this.leftSidebar);
+        // Prevents collapsing right sidebar when mouse enters right ribbon
+        if (ev.relatedTarget ===this.rightRibbon)
+                    return;
         this.collapseSidebar(this.rightSidebar);
       }
     );
@@ -155,7 +158,8 @@ export default class SidebarExpandOnHoverPlugin extends Plugin {
     });
 
     // Double click on right ribbon to toggle pin/unpin of right sidebar
-    this.registerDomEvent(this.rightRibbon, 'dblclick', () => {
+    // the ribbon is covered by the right sidebar
+    this.registerDomEvent(this.rightSidebar, 'dblclick', () => {
       if (this.settings.rightSideEnabled) {
         this.settings.rightPin = !this.settings.rightPin;
         this.saveSettings();
